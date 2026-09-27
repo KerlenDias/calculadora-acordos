@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testes — Calculadora de acordos</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f4f6f8;
+      color: #1b2733;
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 24px; margin: 0 0 8px; }
+    #resumo { font-size: 18px; font-weight: 700; margin: 0 0 16px; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #c7ced6; }
+    .ok { color: #14532d; }
+    .falha { color: #8a1c1c; }
+  </style>
+</head>
+<body>
+  <h1>Testes da calculadora de acordos</h1>
+  <p id="resumo">Executando…</p>
+  <ul id="resultado"></ul>
+  <script src="../src/calculadora.js"></script>
+  <script src="tests.js"></script>
+</body>
+</html>

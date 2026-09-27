@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro" data-texto="normal">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora de acordos com juros e multa</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="pular" href="#resultados">Pular para os resultados</a>
+
+  <header class="cabecalho">
+    <div>
+      <h1>Calculadora de acordos</h1>
+      <p class="apoio">Parcelas semanais com juros definidos por você e multa fixa de 2% por semana.</p>
+    </div>
+
+    <div class="controles">
+      <div class="grupo-controle" role="group" aria-label="Tamanho do texto">
+        <span class="rotulo-controle" id="rotulo-texto">Texto</span>
+        <div class="botoes">
+          <button type="button" class="botao botao--ativo" data-texto="normal" aria-pressed="true" aria-describedby="rotulo-texto">Normal</button>
+          <button type="button" class="botao" data-texto="grande" aria-pressed="false" aria-describedby="rotulo-texto">Grande</button>
+          <button type="button" class="botao" data-texto="enorme" aria-pressed="false" aria-describedby="rotulo-texto">Enorme</button>
+        </div>
+      </div>
+
+      <div class="grupo-controle" role="group" aria-label="Tema de cores">
+        <span class="rotulo-controle" id="rotulo-tema">Tema</span>
+        <div class="botoes">
+          <button type="button" class="botao botao--ativo" data-tema="claro" aria-pressed="true" aria-describedby="rotulo-tema">Claro</button>
+          <button type="button" class="botao" data-tema="escuro" aria-pressed="false" aria-describedby="rotulo-tema">Escuro</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <section class="bloco" aria-labelledby="titulo-entradas">
+      <h2 id="titulo-entradas">1. Dados do acordo</h2>
+      <p class="apoio">Os valores abaixo são exemplos editáveis.</p>
+
+      <div class="campos">
+        <div class="campo">
+          <label for="valor">Valor original (R$)</label>
+          <input id="valor" type="number" min="0" step="0.01" value="1000.00" inputmode="decimal" autocomplete="off">
+        </div>
+
+        <div class="campo">
+          <label for="data">Data do acordo</label>
+          <input id="data" type="date" value="2026-09-27" autocomplete="off">
+        </div>
+
+        <div class="campo">
+          <label for="parcelas">Quantidade de parcelas</label>
+          <input id="parcelas" type="number" min="1" step="1" value="8" inputmode="numeric" autocomplete="off">
+        </div>
+
+        <div class="campo">
+          <label for="juros">Juros por semana (%)</label>
+          <input id="juros" type="number" min="0" step="0.01" value="12" inputmode="decimal" autocomplete="off">
+        </div>
+
+        <div class="campo campo--calculado">
+          <span class="rotulo">Multa por semana (fixa)</span>
+          <output id="multa-semanal">2%</output>
+        </div>
+
+        <div class="campo campo--calculado">
+          <span class="rotulo">Taxa total por semana</span>
+          <output id="taxa-total">14%</output>
+        </div>
+      </div>
+
+      <p id="mensagem" class="mensagem" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section id="resultados" class="bloco" aria-labelledby="titulo-resumo">
+      <h2 id="titulo-resumo">2. Resumo do acordo</h2>
+      <dl class="resumo">
+        <div>
+          <dt>Parcela habitual</dt>
+          <dd id="parcela-habitual">—</dd>
+        </div>
+        <div>
+          <dt>Última parcela</dt>
+          <dd id="ultima-parcela">—</dd>
+        </div>
+        <div>
+          <dt>Total de juros</dt>
+          <dd id="total-juros">—</dd>
+        </div>
+        <div>
+          <dt>Total da multa (2%)</dt>
+          <dd id="total-multa">—</dd>
+        </div>
+        <div class="destaque">
+          <dt>Total a pagar</dt>
+          <dd id="total-pagar">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="bloco" aria-labelledby="titulo-parcelas">
+      <div class="titulo-acao">
+        <h2 id="titulo-parcelas">3. Parcelas</h2>
+        <button type="button" id="abrir-apresentacao" class="botao botao--destaque">Apresentar ao cliente</button>
+      </div>
+      <p id="mensagem-parcelas" class="mensagem mensagem--instrucao" role="status" aria-live="polite" hidden></p>
+
+      <div class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela de parcelas, rolagem horizontal disponível">
+        <table class="tabela">
+          <caption class="oculto-visual">Vencimentos, encargos, amortização e saldo de cada parcela</caption>
+          <thead>
+            <tr>
+              <th scope="col">Parcela</th>
+              <th scope="col">Vencimento</th>
+              <th scope="col">Saldo anterior</th>
+              <th scope="col">Juros</th>
+              <th scope="col">Multa (2%)</th>
+              <th scope="col">Amortização</th>
+              <th scope="col">Pagamento</th>
+              <th scope="col">Saldo após pagar</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-parcelas"></tbody>
+          <tfoot id="rodape-parcelas"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="bloco" aria-labelledby="titulo-ajuda">
+      <h2 id="titulo-ajuda">Como ler os resultados</h2>
+      <ul class="ajuda">
+        <li>A primeira parcela vence no dia do acordo e não tem juros nem multa, porque nenhuma semana transcorreu.</li>
+        <li>As demais vencem a cada sete dias corridos. Juros e multa incidem sobre o saldo devedor imediatamente anterior.</li>
+        <li>Os percentuais são semanais: os juros informados mais 2% de multa formam a taxa total da semana.</li>
+        <li>Amortização é a parte do pagamento que reduz o saldo devedor.</li>
+        <li>A última parcela quita o saldo e pode ficar diferente da parcela habitual.</li>
+      </ul>
+    </section>
+  </main>
+
+  <div id="apresentacao" class="apresentacao" role="dialog" aria-modal="true" aria-labelledby="titulo-apresentacao" hidden>
+    <div class="apresentacao__barra">
+      <button type="button" id="imprimir-apresentacao" class="botao">Imprimir ou salvar em PDF</button>
+      <button type="button" id="fechar-apresentacao" class="botao botao--destaque">Fechar (Esc)</button>
+    </div>
+
+    <div class="apresentacao__folha">
+      <h2 id="titulo-apresentacao">Proposta de acordo</h2>
+
+      <dl class="apresentacao__resumo">
+        <div>
+          <dt>Valor do acordo</dt>
+          <dd id="ap-valor">—</dd>
+        </div>
+        <div>
+          <dt>Parcelas</dt>
+          <dd id="ap-parcelas">—</dd>
+        </div>
+        <div>
+          <dt>Valor da parcela</dt>
+          <dd id="ap-parcela">—</dd>
+        </div>
+        <div class="destaque">
+          <dt>Total a pagar</dt>
+          <dd id="ap-total">—</dd>
+        </div>
+      </dl>
+
+      <table class="apresentacao__tabela">
+        <caption>Datas e valores de cada pagamento</caption>
+        <thead>
+          <tr>
+            <th scope="col">Parcela</th>
+            <th scope="col">Vencimento</th>
+            <th scope="col">Valor a pagar</th>
+          </tr>
+        </thead>
+        <tbody id="ap-corpo"></tbody>
+      </table>
+
+      <p class="apresentacao__nota">
+        Pagamentos semanais. A primeira parcela vence na data do acordo e não tem juros nem multa.
+        Nas semanas seguintes incidem <span id="ap-juros">—</span> de juros e 2% de multa sobre o saldo devedor.
+      </p>
+    </div>
+  </div>
+
+  <script src="src/calculadora.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
