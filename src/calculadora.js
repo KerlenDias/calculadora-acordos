@@ -1,8 +1,9 @@
 (function (global) {
   'use strict';
 
-  var MULTA_SEMANAL = 0.02;
+  var MULTA_MENSAL = 0.02;
   var DIAS_POR_PARCELA = 7;
+  var DIAS_POR_MES = 30;
   var ANO_MAXIMO = 9999;
 
   function arredondar(valor) {
@@ -17,6 +18,11 @@
 
   function somarTaxas(a, b) {
     return Math.round((a + b) * 1e10) / 1e10;
+  }
+
+  // Taxas sao informadas ao mes; cada parcela cobre sete dias e cobra a fracao proporcional.
+  function proRataSemanal(taxaMensal) {
+    return Math.round(((taxaMensal * DIAS_POR_PARCELA) / DIAS_POR_MES) * 1e10) / 1e10;
   }
 
   function temNoMaximoDuasCasas(valor) {
@@ -104,8 +110,11 @@
     var valor = arredondar(Number(entradas.valor));
     var parcelas = Number(entradas.parcelas);
     var juros = Number(entradas.juros);
-    var multa = MULTA_SEMANAL;
-    var taxaTotal = somarTaxas(juros, multa);
+    var multa = MULTA_MENSAL;
+    var taxaMensal = somarTaxas(juros, multa);
+    var jurosSemanal = proRataSemanal(juros);
+    var multaSemanal = proRataSemanal(multa);
+    var taxaTotal = somarTaxas(jurosSemanal, multaSemanal);
     var data = entradas.data instanceof Date ? entradas.data : new Date(entradas.data + 'T00:00:00');
 
     var habitual = parcelaHabitual(valor, parcelas, taxaTotal);
@@ -118,8 +127,8 @@
     var totalPagamento = 0;
 
     for (var k = 1; k <= parcelas; k++) {
-      var jurosLinha = k === 1 ? 0 : arredondar(saldoAnterior * juros);
-      var multaLinha = k === 1 ? 0 : arredondar(saldoAnterior * multa);
+      var jurosLinha = k === 1 ? 0 : arredondar(saldoAnterior * jurosSemanal);
+      var multaLinha = k === 1 ? 0 : arredondar(saldoAnterior * multaSemanal);
       var devido = arredondar(saldoAnterior + jurosLinha + multaLinha);
 
       var saldoRestante;
@@ -158,6 +167,9 @@
         parcelas: parcelas,
         juros: juros,
         multa: multa,
+        taxaMensal: taxaMensal,
+        jurosSemanal: jurosSemanal,
+        multaSemanal: multaSemanal,
         taxaTotal: taxaTotal,
         data: data
       },
@@ -174,10 +186,12 @@
   }
 
   global.Acordo = {
-    MULTA_SEMANAL: MULTA_SEMANAL,
+    MULTA_MENSAL: MULTA_MENSAL,
     DIAS_POR_PARCELA: DIAS_POR_PARCELA,
+    DIAS_POR_MES: DIAS_POR_MES,
     arredondar: arredondar,
     somarTaxas: somarTaxas,
+    proRataSemanal: proRataSemanal,
     parcelaHabitual: parcelaHabitual,
     somarDias: somarDias,
     validar: validar,
